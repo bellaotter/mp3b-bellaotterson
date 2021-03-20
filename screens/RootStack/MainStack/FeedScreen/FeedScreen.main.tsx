@@ -26,7 +26,7 @@ interface Props {
 export default function FeedScreen({ navigation }: Props) {
   // List of social objects
   const [socials, setSocials] = useState<SocialModel[]>([]);
-
+  const [likedIcon, setLikedIcon] = useState('heart-outline');
   const currentUserId = firebase.auth().currentUser!.uid;
 
   useEffect(() => {
@@ -47,15 +47,28 @@ export default function FeedScreen({ navigation }: Props) {
   }, []);
 
   const toggleInterested = (social: SocialModel) => {
-    // TODO: Put your logic for flipping the user's "interested"
+    // Put your logic for flipping the user's "interested"
     // status here, and call this method from your "like"
     // button on each Social card.
+    if (likedIcon == "heart"){
+      setLikedIcon("heart-outline");
+    }
+    if (likedIcon == "heart-outline"){
+      setLikedIcon("heart");
+    }
   };
 
   const deleteSocial = (social: SocialModel) => {
-    // TODO: Put your logic for deleting a social here,
+    // Put your logic for deleting a social here,
     // and call this method from your "delete" button
     // on each Social card that was created by this user.
+    const db = firebase.firestore();
+    db.collection("socials").doc(social.id).delete().then(() => {
+      console.log("Document successfully deleted!");
+    }).catch((error) => {
+      console.error("Error removing document: ", error);
+    });
+    console.log("deleted");
   };
 
   const renderSocial = ({ item }: { item: SocialModel }) => {
@@ -76,9 +89,15 @@ export default function FeedScreen({ navigation }: Props) {
             new Date(item.eventDate).toLocaleString()
           }
         />
-        {/* TODO: Add a like/interested button & delete soccial button. See Card.Actions
+        <Card.Actions>
+          <Button onPress={() => toggleInterested(item)} icon={likedIcon}>Like</Button>
+          <Button onPress={() => deleteSocial(item)} color="#FF0000">Delete</Button>
+        </Card.Actions>
+        
+        {/* Add a like/interested button & delete soccial button. See Card.Actions
               in React Native Paper for UI/UX inspiration.
-              https://callstack.github.io/react-native-paper/card-actions.html */}
+              https://callstack.github.io/react-native-paper/card-actions.html 
+              */}
       </Card>
     );
   };
@@ -101,6 +120,16 @@ export default function FeedScreen({ navigation }: Props) {
     );
   };
 
+  const ListEmptyComponent = () => {
+    return (
+      <View style={styles.textView}>
+        <Text style={styles.text}>
+          Welcome! To get started, use the plus button in the top-right corner to create a new social.
+        </Text>
+      </View>
+    );
+  };
+
   return (
     <>
       <Bar />
@@ -113,7 +142,7 @@ export default function FeedScreen({ navigation }: Props) {
           // by reading the documentation :)
           // https://reactnative.dev/docs/flatlist#listemptycomponent
 
-          // ListEmptyComponent={ListEmptyComponent}
+          ListEmptyComponent={ListEmptyComponent}
         />
       </View>
     </>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Platform, View } from "react-native";
+import { Keyboard, Platform, View } from "react-native";
 import { Appbar, TextInput, Snackbar, Button } from "react-native-paper";
 import { getFileObjectAsync } from "../../../Utils";
 
@@ -64,6 +64,7 @@ export default function NewSocialScreen({ navigation }: Props) {
     if (!result.cancelled) {
       setEventImage(result.uri);
     }
+    Keyboard.dismiss();
   };
 
   // Code for DatePicker (from docs)
